@@ -12,11 +12,14 @@ library(dplyr)
 data("flights")
 data("weather")
 ```
+
 ```{r}
+
 head(flights)
 ua <- flights %>% 
   filter(carrier == "UA")
 head(ua)
+
 ```
 
 
@@ -76,29 +79,5 @@ ggplot(ua_weather, aes(x = time_of_day, y = dep_delay)) +
 colnames(ua_weather)
 ```
 
-```{r}
 
-ua_weather %>%
-  group_by(month.x) %>%
-  summarize(
-    avg_delay = mean(dep_delay, na.rm = TRUE),
-    prop_very_late = mean(very_late, na.rm = TRUE)
-  )
-
-ggplot(ua_weather, aes(x = month.x, y = dep_delay)) +
-  geom_boxplot() +
-  labs(title = "Departure Delays by Month", x = "Month", y = "Delay (minutes)")
-
-```
-```{r}
-by_origin_monthly <- flights %>% 
-  group_by("UA", month) %>% 
-  summarize(count = n())
-by_origin_monthly
-
-ggplot(by_origin_monthly, aes(x = month, y = dep_delay)) +
-  geom_boxplot() +
-  labs(title = "Departure Delays by Month", x = "Month", y = "Delay (minutes)")
-
-```
 
