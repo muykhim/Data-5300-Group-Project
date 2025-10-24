@@ -1,0 +1,104 @@
+---
+title: "group project"
+output: html_document
+date: "2025-10-23"
+---
+
+```{r}
+library(nycflights13)
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+data("flights")
+data("weather")
+```
+```{r}
+head(flights)
+ua <- flights %>% 
+  filter(carrier == "UA")
+head(ua)
+```
+
+
+```{r}
+ua_weather <- ua %>%
+  inner_join(weather, by = c("origin", "time_hour"))
+head(ua_weather)
+colnames(ua_weather)
+```
+
+```{r}
+ua_weather <- ua_weather %>%
+  mutate(
+    late = dep_delay >= 15,
+    very_late = dep_delay >= 60,
+    hour = sched_dep_time %/% 100,
+    time_of_day = case_when(
+      hour %in% 0:5 ~ "Early morning",
+      hour %in% 6:11 ~ "Morning",
+      hour %in% 12:17 ~ "Afternoon",
+      hour %in% 18:23 ~ "Evening"
+    )
+  )
+
+```
+```{r}
+ua_weather %>%
+  group_by(time_of_day) %>%
+  summarize(mean_delay = mean(dep_delay, na.rm = TRUE))
+
+```
+
+### the relationship between departure delays and time of the day
+```{r}
+ua_weather %>%
+  group_by(time_of_day) %>%
+  summarize(
+    avg_delay = mean(dep_delay, na.rm = TRUE),
+    prop_very_late = mean(very_late, na.rm = TRUE)
+  )
+
+ggplot(ua_weather, aes(x = time_of_day, y = dep_delay)) +
+  geom_boxplot() +
+  labs(title = "Departure Delays by Time of Day", x = "Time of Day", y = "Delay (minutes)")
+
+```
+
+
+```{r}
+ggplot(ua_weather, aes(x = time_of_day, y = dep_delay)) +
+  geom_boxplot() +
+  labs(title = "Departure delays by time of day", x = "Time of Day", y = "Delay (minutes)")
+
+```
+
+```{r}
+colnames(ua_weather)
+```
+
+```{r}
+
+ua_weather %>%
+  group_by(month.x) %>%
+  summarize(
+    avg_delay = mean(dep_delay, na.rm = TRUE),
+    prop_very_late = mean(very_late, na.rm = TRUE)
+  )
+
+ggplot(ua_weather, aes(x = month.x, y = dep_delay)) +
+  geom_boxplot() +
+  labs(title = "Departure Delays by Month", x = "Month", y = "Delay (minutes)")
+
+```
+```{r}
+by_origin_monthly <- flights %>% 
+  group_by("UA", month) %>% 
+  summarize(count = n())
+by_origin_monthly
+
+ggplot(by_origin_monthly, aes(x = month, y = dep_delay)) +
+  geom_boxplot() +
+  labs(title = "Departure Delays by Month", x = "Month", y = "Delay (minutes)")
+
+```
+
